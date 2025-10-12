@@ -10,6 +10,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -40,6 +41,13 @@ class UserResource extends Resource
                     ->required(fn(string $operation): bool => $operation == 'create'),
                 TextInput::make('password_confirmation')
                     ->requiredWith('password')
+                    ->password(),
+                Select::make('paymentMethods')
+                    ->multiple()
+                    ->relationship('paymentMethods', 'name')
+                    ->preload()
+                    ->searchable()
+                    ->columnSpanFull()  
             ]);
     }
 
