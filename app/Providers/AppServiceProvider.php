@@ -8,6 +8,7 @@ use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Facades\FilamentTimezone;
 use Filament\Tables\Columns\Column;
+use Filament\Tables\Table;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
         });
         Action::configureUsing(function(Action $action): void {
             $action->translateLabel();
+        });
+        Table::configureUsing(function(Table $table): void {
+            $table->striped()
+                    ->reorderableColumns();
+
         });
     }
 }
