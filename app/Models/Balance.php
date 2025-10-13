@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
-use App\Enums\OutcomeStatus;
 use Cknow\Money\Casts\MoneyDecimalCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Outcome extends Balance
+class Balance extends Model
 {
     use SoftDeletes;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -26,7 +25,6 @@ class Outcome extends Balance
         'description',
         'amount',
         'expense_date',
-        'status',
         'receipt_photo'
     ];
 
@@ -38,8 +36,8 @@ class Outcome extends Balance
     protected function casts(): array
     {
         return [
-            ...parent::casts(),
-            'status' => OutcomeStatus::class
+            'expense_date' => 'date',
+            'amount' => MoneyDecimalCast::class,
         ];
     }
 
