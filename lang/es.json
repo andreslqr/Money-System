@@ -224,5 +224,6 @@
     "Web Server is Down": "El servidor web está caído",
     "Whoops!": "¡Ups!",
     "Yes": "Sí",
-    "You are receiving this email because we received a password reset request for your account.": "Ha recibido este mensaje porque se solicitó un restablecimiento de contraseña para su cuenta."
+    "You are receiving this email because we received a password reset request for your account.": "Ha recibido este mensaje porque se solicitó un restablecimiento de contraseña para su cuenta.",
+    "Period from :startYear :startMonth to :endYear :endMonth": "Periodo de :startDay :startMonth :startYear al :endDay :endMonth :endYear"
 }

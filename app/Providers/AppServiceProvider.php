@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Column::configureUsing(function(Column $column): void {
             $column->translateLabel();
         });
-        Entry::configureUsing(function(Column $column): void {
+        Entry::configureUsing(function(Entry $column): void {
             $column->translateLabel();
         });
         Action::configureUsing(function(Action $action): void {
