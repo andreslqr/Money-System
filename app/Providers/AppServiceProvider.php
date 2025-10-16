@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Policies\GlobalPolicy;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
@@ -9,6 +10,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Facades\FilamentTimezone;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -43,7 +45,8 @@ class AppServiceProvider extends ServiceProvider
         Table::configureUsing(function(Table $table): void {
             $table->striped()
                     ->reorderableColumns();
-
         });
+
+        Gate::guessPolicyNamesUsing(fn(string $modelClass): string => GlobalPolicy::class);
     }
 }
