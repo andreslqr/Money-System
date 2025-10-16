@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('business_id');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('amount');
+            $table->decimal('amount', 12, 2);
             $table->date('expense_date');
             $table->enum('status', ['pending', 'paid', 'cancelled']);
             $table->string('receipt_photo')->nullable();

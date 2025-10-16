@@ -3,15 +3,12 @@
 namespace App\Models;
 
 use App\Enums\OutcomeStatus;
-use Cknow\Money\Casts\MoneyDecimalCast;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @inheritDoc
+ */
 class Outcome extends Balance
-{
-    use SoftDeletes;
-    
+{   
     /**
      * The attributes that are mass assignable.
      *
@@ -41,25 +38,5 @@ class Outcome extends Balance
             ...parent::casts(),
             'status' => OutcomeStatus::class
         ];
-    }
-
-    public function accountingPeriod(): BelongsTo
-    {
-        return $this->belongsTo(AccountingPeriod::class);
-    }
-
-    public function business(): BelongsTo
-    {
-        return $this->belongsTo(Business::class);
-    }
-
-    public function paymentMethod(): BelongsTo
-    {
-        return $this->belongsTo(PaymentMethod::class);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 }

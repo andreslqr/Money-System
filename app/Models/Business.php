@@ -23,7 +23,7 @@ class Business extends Model
     ];
 
 
-    public function BusinessCategory(): BelongsTo
+    public function businessCategory(): BelongsTo
     {
         return $this->belongsTo(BusinessCategory::class);
     }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -38,5 +39,15 @@ class BusinessCategory extends Model
     public function businesses(): HasMany
     {
         return $this->hasMany(Business::class);
+    }
+
+    public function incomes(): HasManyThrough
+    {
+        return $this->hasManyThrough(Income::class, Business::class);
+    }
+
+    public function outcomes(): HasManyThrough
+    {
+        return $this->hasManyThrough(Outcome::class, Business::class);
     }
 }
