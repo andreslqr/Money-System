@@ -2,7 +2,11 @@
 
 namespace App\Filament\Resources\Incomes;
 
+use App\Filament\Resources\AccountingPeriods\Filters\AccountingPeriodFilter;
+use App\Filament\Resources\Businesses\BusinessResource;
 use App\Filament\Resources\Incomes\Pages\ManageIncomes;
+use App\Filament\Resources\PaymentMethods\Filters\PaymentMethodFilter;
+use App\Filament\Resources\Users\Filters\UserFilter;
 use App\Models\AccountingPeriod;
 use App\Models\Income;
 use App\Models\PaymentMethod;
@@ -22,6 +26,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\RawJs;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
@@ -35,6 +40,8 @@ class IncomeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?int $navigationSort = 1;
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -47,8 +54,10 @@ class IncomeResource extends Resource
                     ->required()
                     ->numeric()
                     ->mask(RawJs::make('$money($input)'))
+                    ->stripCharacters(',')
                     ->prefix('$'),
                 Select::make('payment_method_id')
+                    ->searchable()
                     ->relationship('paymentMethod')
                     ->options(function(): Collection {
                         return auth()->user()
@@ -58,8 +67,12 @@ class IncomeResource extends Resource
                     })
                     ->required(),
                 Select::make('business_id')
+                    ->searchable()
                     ->relationship('business', 'name')
-                    ->required(),
+                    ->required()
+                    ->createOptionForm(function(Schema $schema): Schema {
+                        return BusinessResource::form($schema);
+                    }),
                 FileUpload::make('receipt_photo')
                             ->image()
                             ->visibility('public')
@@ -69,16 +82,19 @@ class IncomeResource extends Resource
                 Textarea::make('description')
                     ->columnSpanFull(),
                 Select::make('accounting_period_id')
+                    ->searchable()
                     ->relationship('accountingPeriod', 'name')
                     ->default(fn(): int => AccountingPeriod::latest()->first()->getKey())
                     ->required(),
                 Select::make('user_id')
+                    ->searchable()
                     ->relationship('user', 'name')
                     ->default(fn(): int => auth()->id())
                     ->required(),
                 DatePicker::make('expense_date')
                     ->default(fn() => Carbon::now())
-                    ->required(),
+                    ->required()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -136,7 +152,13 @@ class IncomeResource extends Resource
                     ->searchable(),
                 TextColumn::make('amount')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(
+                        Sum::make()
+                            ->label('Total')
+                            ->translateLabel()
+                            ->money(config('app.currency'))
+                    ),
                 TextColumn::make('expense_date')
                     ->date()
                     ->sortable(),
@@ -154,7 +176,9 @@ class IncomeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                AccountingPeriodFilter::make('accountingPeriod'),
+                UserFilter::make('user'),
+                PaymentMethodFilter::make('paymentMethod')
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -166,6 +190,7 @@ class IncomeResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ])
+            ->defaultSort('expense_date', 'desc')
             ->defaultGroup('accountingPeriod.name');
     }
 

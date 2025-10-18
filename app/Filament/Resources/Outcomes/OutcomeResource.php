@@ -3,7 +3,11 @@
 namespace App\Filament\Resources\Outcomes;
 
 use App\Enums\OutcomeStatus;
+use App\Filament\Resources\AccountingPeriods\Filters\AccountingPeriodFilter;
+use App\Filament\Resources\Businesses\BusinessResource;
 use App\Filament\Resources\Outcomes\Pages\ManageOutcomes;
+use App\Filament\Resources\PaymentMethods\Filters\PaymentMethodFilter;
+use App\Filament\Resources\Users\Filters\UserFilter;
 use App\Models\AccountingPeriod;
 use App\Models\Outcome;
 use App\Models\PaymentMethod;
@@ -24,9 +28,9 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Support\RawJs;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -37,6 +41,8 @@ class OutcomeResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowRightStartOnRectangle;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 0;
 
     public static function form(Schema $schema): Schema
     {
@@ -50,6 +56,7 @@ class OutcomeResource extends Resource
                     ->required()
                     ->numeric()
                     ->mask(RawJs::make('$money($input)'))
+                    ->stripCharacters(',')
                     ->prefix('$'),
                 Select::make('payment_method_id')
                     ->relationship('paymentMethod')
@@ -62,7 +69,10 @@ class OutcomeResource extends Resource
                     ->required(),
                 Select::make('business_id')
                     ->relationship('business', 'name')
-                    ->required(),
+                    ->required()
+                    ->createOptionForm(function(Schema $schema): Schema {
+                        return BusinessResource::form($schema);
+                    }),
                 FileUpload::make('receipt_photo')
                             ->image()
                             ->visibility('public')
@@ -76,6 +86,7 @@ class OutcomeResource extends Resource
                     ->default(fn(): int => AccountingPeriod::latest()->first()->getKey())
                     ->required(),
                 Select::make('user_id')
+                    ->searchable()
                     ->relationship('user', 'name')
                     ->default(fn(): int => auth()->id())
                     ->required(),
@@ -129,23 +140,31 @@ class OutcomeResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('accountingPeriod.name')
-                    ->numeric()
+                    ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('paymentMethod.name')
-                    ->numeric()
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('business.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('amount')
+                    ->alignEnd()
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(
+                        Sum::make()
+                            ->label('Total')
+                            ->translateLabel()
+                            ->money(config('app.currency'))
+                    ),
                 TextColumn::make('expense_date')
                     ->date()
                     ->sortable(),
@@ -165,7 +184,9 @@ class OutcomeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                AccountingPeriodFilter::make('accountingPeriod'),
+                UserFilter::make('user'),
+                PaymentMethodFilter::make('paymentMethod')
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -177,6 +198,7 @@ class OutcomeResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ])
+            ->defaultSort('expense_date', 'desc')
             ->defaultGroup('accountingPeriod.name');
     }
 

@@ -9,14 +9,15 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Operation;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class UserResource extends Resource
 {
@@ -25,6 +26,10 @@ class UserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 7;
+
+    protected static string | UnitEnum | null $navigationGroup = 'General';
 
     public static function form(Schema $schema): Schema
     {
@@ -38,7 +43,7 @@ class UserResource extends Resource
                     ->required(),
                 TextInput::make('password')
                     ->password()
-                    ->required(fn(string $operation): bool => $operation == 'create'),
+                    ->required(fn(string $operation): bool => $operation == Operation::Create->value),
                 TextInput::make('password_confirmation')
                     ->requiredWith('password')
                     ->password(),

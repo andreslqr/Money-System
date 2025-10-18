@@ -25,6 +25,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class BusinessCategoryResource extends Resource
 {
@@ -33,6 +34,10 @@ class BusinessCategoryResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 5;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Business';
 
     public static function form(Schema $schema): Schema
     {
@@ -59,9 +64,6 @@ class BusinessCategoryResource extends Resource
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('sort')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

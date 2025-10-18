@@ -28,6 +28,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class AccountingPeriodResource extends Resource
 {
@@ -36,6 +37,10 @@ class AccountingPeriodResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 3;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Business';
 
     public static function form(Schema $schema): Schema
     {

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Businesses;
 
+use App\Filament\Resources\BusinessCategories\BusinessCategoryResource;
+use App\Filament\Resources\BusinessCategories\Filters\BusinessCategory;
 use App\Filament\Resources\Businesses\Pages\ManageBusinesses;
 use App\Models\Business;
 use BackedEnum;
@@ -16,10 +18,10 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\View\View;
+use UnitEnum;
 
 class BusinessResource extends Resource
 {
@@ -28,6 +30,10 @@ class BusinessResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 4;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Business';
 
     public static function form(Schema $schema): Schema
     {
@@ -41,6 +47,9 @@ class BusinessResource extends Resource
                     ->searchable()
                     ->preload()
                     ->allowHtml()
+                    ->createOptionForm(function(Schema $schema): Schema {
+                        return BusinessCategoryResource::form($schema);
+                    })
                     ->required(),
                 Textarea::make('description')
                     ->columnSpanFull(),
@@ -72,10 +81,7 @@ class BusinessResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('businessCategory')
-                        ->relationship('businessCategory', 'name')
-                        ->preload()
-                        ->searchable()
+                BusinessCategory::make('businessCategory')
             ])
             ->recordActions([
                 EditAction::make(),
